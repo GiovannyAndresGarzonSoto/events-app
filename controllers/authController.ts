@@ -5,17 +5,16 @@ import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 import { getSeed } from '../utils'
 
-//ethereal.email
 const nmuser = 'darian.mcglynn41@ethereal.email'
 const nmpass = 'EE1E6aYJuyaSgrJwbg'
 
 export const authController = {
-    signup: async(req: Request, res: Response) => {
+    signup: async(req: Request, res: Response): Promise<void> => {
         try{
             const {name, email, password} = req.body
             const verifyUser = await User.findOne({email})
             if(verifyUser){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'El correo ya existe para otro usuario'
                 })
@@ -60,77 +59,77 @@ export const authController = {
                 <p>localhost:8080/auth/activate/${token}</p>`
             })
             if(!info){
-                return res.json({
+                res.json({
                     success: false,
                     message: 'Problemas al enviar correo de verificacion'
                 })
             } 
-            return res.json({
+            res.json({
                 success: true,
                 message: 'Le hemos enviado un correo para verificar su cuenta'
             })
         }catch(err){
-            return res.status(200).json({
+            res.status(200).json({
                 success: false,
                 message: 'Problemas al registrar el Usuario',
                 err
             })
         }
     },
-    signin: async(req: Request, res: Response) => {
+    signin: async(req: Request, res: Response): Promise<void> => {
         try{
             const data = await User.findOne({email: req.body.email})
             if(!data){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Correo o contraseña erronea'
                 })
             }
-            const correctPassword: boolean = await data.validatePassword(req.body.password) 
+            const correctPassword: boolean | undefined = await data?.validatePassword(req.body.password) 
             if(!correctPassword){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Correo o contraseña erronea'
                 })
             }
-            if(!data.active) {
-                return res.status(200).json({
+            if(!data?.active) {
+                res.status(200).json({
                     success: false,
                     message: 'Es necesario confirmar su correo'
                 })
             }
             const payload = {
-                _id: data._id,
-                email: data.email,
-                role: data.role
+                _id: data?._id,
+                email: data?.email,
+                role: data?.role
             }
             const token = jwt.sign(payload, getSeed(), {
                 expiresIn: 60*60*2 
             })
-            return res.json({
+            res.json({
                 success: true,
                 token
             })
         }catch(err){
-            return res.status(200).json({
+            res.status(200).json({
                 sucess: false,
                 message: 'No se pudo autenticar el Usuario',
                 err
             })
         }
     },
-    activateAccount: async(req: Request, res: Response) => {
+    activateAccount: async(req: Request, res: Response): Promise<void> => {
         try{
             const {token} = req.body 
             if(!token) {
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Es necesario un token'
                 })
             }
             const decoded: any = jwt.verify(token, getSeed())
             if(!decoded){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Token erroneo o expirado'
                 })
@@ -138,35 +137,35 @@ export const authController = {
             const {email} = decoded
             const user = await User.findOne({email})
             if (!user) {
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Usuario no encontrado'
                 });
             }
-            await user.updateOne({active: true})
-            return res.json({
+            await user?.updateOne({active: true})
+            res.json({
                 success: true,
                 message: 'La cuenta ha sido activada'
             })
         }catch(err){
-            return res.status(200).json({
+            res.status(200).json({
                 success: false,
                 message: 'Error al activar la cuenta',
                 err
             })
         }
     },
-    forgotPassword: async(req: Request, res: Response) => {
+    forgotPassword: async(req: Request, res: Response): Promise<void> => {
         try{
             const {email} = req.body
             const user = await User.findOne({email})
             if(!user){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Problemas al realizar la operacion'
                 })
             }
-            const token = jwt.sign({_id: user._id}, getSeed(), {expiresIn: 1200})
+            const token = jwt.sign({_id: user?._id}, getSeed(), {expiresIn: 1200})
             const transporter = nodemailer.createTransport({
                 host: 'smtp.ethereal.email',
                 port: 587,
@@ -189,43 +188,43 @@ export const authController = {
             })
             console.log(info)
             if(!info){
-                return res.json({
+                res.json({
                     success: false,
                     message: 'Problemas al cambiar su contraseña'
                 })
             }
-            const data = await user.updateOne({resetLink: token})
+            const data = await user?.updateOne({resetLink: token})
             console.log(data)
             if(!data){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Enlace de resetear contraseña incorrecto'
                 })
             }
-            return res.json({
+            res.json({
                 success: true,
                 message: 'Le hemos enviado un enlace para resetear la contraseña'
             })
         }catch(err){
-            return res.status(200).json({
+            res.status(200).json({
                 success: false,
                 message: 'Error al enviar enlace para resetear contraseña',
                 err
             })
         }
     },
-    resetPassword: async(req: Request, res: Response) => {
+    resetPassword: async(req: Request, res: Response): Promise<void> => {
         try{
             const {resetLink, newPass} = req.body
             if(!resetLink){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Token incorrecto o expirado'
                 })
             }
             const decoded = jwt.verify(resetLink, getSeed())
             if(!decoded){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Error al verificar el token'
                 })
@@ -239,17 +238,17 @@ export const authController = {
             user.password = await user.encryptPassword(user.password)
             const modifiedUser = await user.save()
             if(!modifiedUser){
-                return res.status(200).json({
+                res.status(200).json({
                     success: false,
                     message: 'Error al modificar contraseña',
                 })
             }
-            return res.json({
+            res.json({
                 success: true,
                 message: 'Tu contraseña ha sido modificada'
             })
         }catch(err){
-            return res.status(200).json({
+            res.status(200).json({
                 success: false,
                 message: 'Error al resetear contraseña',
                 err
