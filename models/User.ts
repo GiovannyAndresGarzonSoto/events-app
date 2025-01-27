@@ -47,8 +47,8 @@ const userSchema = new Schema({
         default: true
     },
     resetLink: {
-        data: String,
-        // default: ''
+        type: String,
+        default: ''
     }
 }, {
     timestamps: true,
