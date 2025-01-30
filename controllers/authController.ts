@@ -32,9 +32,7 @@ export const authController = {
                 email: data.email,
                 role: data.role
             }
-            if (!process.env.SEED) {
-                throw new Error('JWT secret (SEED) is not defined');
-            }
+            
             const token = jwt.sign(payload, getSeed(), {expiresIn: 1200})
 
             const transporter = nodemailer.createTransport({
@@ -76,6 +74,7 @@ export const authController = {
             })
         }
     },
+
     signin: async(req: Request, res: Response): Promise<void> => {
         try{
             const data = await User.findOne({email: req.body.email})
@@ -118,6 +117,7 @@ export const authController = {
             })
         }
     },
+
     activateAccount: async(req: Request, res: Response): Promise<void> => {
         try{
             const {token} = req.body 
@@ -155,6 +155,7 @@ export const authController = {
             })
         }
     },
+
     forgotPassword: async(req: Request, res: Response): Promise<void> => {
         try{
             const {email} = req.body
@@ -213,6 +214,7 @@ export const authController = {
             })
         }
     },
+    
     resetPassword: async(req: Request, res: Response): Promise<void> => {
         try{
             const {resetLink, newPass} = req.body

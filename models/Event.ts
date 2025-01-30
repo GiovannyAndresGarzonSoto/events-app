@@ -1,6 +1,6 @@
 import { model, Schema, type ObjectId } from "mongoose"
 
-interface IEvent extends Document {
+export interface IEvent extends Document {
     name: string
     description: string
     startDate: Date
@@ -8,16 +8,16 @@ interface IEvent extends Document {
     maxParticipants: number
     status: "active" | "completed" | "pending" | "cancelled"
     prize: string
-    category: string
+    category?: string
     imageUrl?: string
     rules?: string
     participationCost?: number
-    participants: ObjectId[]
+    participants?: ObjectId[]
     winnerId?: ObjectId
-    creatorId: ObjectId
-    visibility: "public" | "private"
+    creatorId?: ObjectId
+    visibility?: "public" | "private"
     invitationCode?: string
-    participationLimit: number
+    participationLimit?: number
     drawDate?: Date
     createdAt: Date
     updatedAt: Date
@@ -56,7 +56,6 @@ const eventSchema = new Schema({
     },
     category: { 
         type: String, 
-        required: true 
     },
     imageUrl: { 
         type: String 
@@ -83,7 +82,6 @@ const eventSchema = new Schema({
     },
     visibility: { 
         type: String, 
-        required: true, 
         enum: ["public", "private"], 
         default: "public" 
     },
@@ -97,7 +95,8 @@ const eventSchema = new Schema({
     drawDate: { 
         type: Date 
     }
-}, { timestamps: true ,
+}, { 
+    timestamps: true,
     versionKey: false
 })
 
