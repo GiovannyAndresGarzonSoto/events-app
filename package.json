@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "bun run  index.ts",
-    "dev": "bun run index.ts"
+    "dev": "bun --watch run index.ts "
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
