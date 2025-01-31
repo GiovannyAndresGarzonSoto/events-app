@@ -3,11 +3,11 @@ import {eventController} from '../controllers/eventController'
 
 const router: Router = Router()
 
-router.post('/create', eventController.create)
-
-router.get('/getAll', eventController.getAll)
+router.get('/gtAll', eventController.getAll)
 
 router.get('/getById', eventController.getById)
+
+router.post('/create', eventController.create)
 
 router.put('/update', eventController.update)
 

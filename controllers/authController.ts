@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 import { getSeed } from '../utils'
 
-const nmuser = 'darian.mcglynn41@ethereal.email'
-const nmpass = 'EE1E6aYJuyaSgrJwbg'
+const nmuser = 'otho.bahringer4@ethereal.email'
+const nmpass = '22S6cSD4fzeV7YNCHq'
 
 export const authController = {
     signup: async(req: Request, res: Response): Promise<void> => {

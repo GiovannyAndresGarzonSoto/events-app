@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express'
-import Event  from '../models/Event'
+import Event, { type IEvent }  from '../models/Event'
 
 export const eventController = {
     create: async (req: Request, res: Response): Promise<void> => {
@@ -16,7 +16,7 @@ export const eventController = {
                 creatorId,
             })
 
-            const savedEvent = await newEvent.save()
+            const savedEvent: IEvent = await newEvent.save()
 
             res.status(201).json({
                 success: true,
