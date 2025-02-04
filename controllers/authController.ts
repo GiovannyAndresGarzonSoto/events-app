@@ -32,9 +32,8 @@ export const authController = {
                 email: data.email,
                 role: data.role
             }
-            
             const token = jwt.sign(payload, getSeed(), {expiresIn: 1200})
-
+            
             const transporter = nodemailer.createTransport({
                 host: 'smtp.ethereal.email',
                 port: 587,
