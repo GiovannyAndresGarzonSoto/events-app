@@ -1,0 +1,417 @@
+openapi: 3.0.0
+info:
+  title: Events and Authentication API
+  version: 0.0.1
+  description: API for managing events and user authentication, including signup, signin, account activation, and password reset.
+  contact:
+    name: Giovanny Garzón Soto
+    email: giovannygarzonsoto@gmail.com
+
+servers:
+  - url: http://localhost:3666
+    description: Local development server
+
+paths:
+  /api/events:
+    get:
+      summary: Get all events
+      tags: [Events]
+      responses:
+        '200':
+          description: Events retrieved successfully
+        '500':
+          description: Error retrieving events
+    post:
+      summary: Create a new event
+      tags: [Events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                startDate:
+                  type: string
+                  format: date-time
+                endDate:
+                  type: string
+                  format: date-time
+                maxParticipants:
+                  type: integer
+                prize:
+                  type: string
+                category:
+                  type: string
+                creatorId:
+                  type: string
+      responses:
+        '201':
+          description: Event created successfully
+        '500':
+          description: Error creating event
+
+  /api/events/{id}:
+    get:
+      summary: Get event by Id
+      tags: [Events]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event retrieved successfully
+        '404':
+          description: Event not found
+        '500':
+          description: Error retrieving event
+    put:
+      summary: Update event by ID
+      tags: [Events]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Event updated successfully
+        '404':
+          description: Event not found
+        '500':
+          description: Error updating event
+    delete:
+      summary: Delete event by ID
+      tags: [Events]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event deleted successfully
+        '404':
+          description: Event not found
+        '500':
+          description: Error deleting event
+
+  /api/events/join:
+    post:
+      summary: Join an event
+      tags: [Events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                eventId:
+                  type: string
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: User added to event successfully
+        '404':
+          description: Event not found
+        '400':
+          description: User already participating or event full
+        '500':
+          description: Error joining event
+
+  /api/events/selectWinner:
+    post:
+      summary: Select a winner for an event
+      tags: [Events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                eventId:
+                  type: string
+      responses:
+        '200':
+          description: Winner selected successfully
+        '404':
+          description: Event not found
+        '400':
+          description: Event not completed or no participants
+        '500':
+          description: Error selecting winner
+
+  /auth/signup:
+    post:
+      summary: Register a new user
+      description: Allows a new user to register. A verification email is sent to activate the account.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: User's full name
+                  example: "Juan Pérez"
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: "juan.perez@example.com"
+                password:
+                  type: string
+                  format: password
+                  description: User's password
+                  example: "Password123"
+      responses:
+        '200':
+          description: User registered successfully. A verification email has been sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "We have sent you an email to verify your account"
+        '400':
+          description: Error during user registration.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "The email already exists for another user"
+                  err:
+                    type: object
+                    description: Error details
+
+  /auth/signin:
+    post:
+      summary: User login
+      description: Allows a user to log in. Returns a JWT token for authentication.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: "juan.perez@example.com"
+                password:
+                  type: string
+                  format: password
+                  description: User's password
+                  example: "Password123"
+      responses:
+        '200':
+          description: Login successful. Returns a JWT token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Error during login.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Incorrect email or password"
+                  err:
+                    type: object
+                    description: Error details
+
+  /auth/email-activate:
+    put:
+      summary: Activate user account
+      description: Activates a user account using a token sent via email.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Activation token sent via email
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Account activated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Your account has been activated"
+        '400':
+          description: Error during account activation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid or expired token"
+                  err:
+                    type: object
+                    description: Error details
+
+  /auth/forgot-password:
+    put:
+      summary: Request password reset
+      description: Sends a password reset link to the user's email.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: "juan.perez@example.com"
+      responses:
+        '200':
+          description: Password reset link sent successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "We have sent you a link to reset your password"
+        '400':
+          description: Error during password reset request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Error processing your request"
+                  err:
+                    type: object
+                    description: Error details
+
+  /auth/reset-password:
+    put:
+      summary: Reset user password
+      description: Resets the user's password using a token sent via email.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resetLink:
+                  type: string
+                  description: Password reset token sent via email
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                newPass:
+                  type: string
+                  format: password
+                  description: New password
+                  example: "NewPassword123"
+      responses:
+        '200':
+          description: Password reset successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Your password has been reset"
+        '400':
+          description: Error during password reset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid or expired token"
+                  err:
+                    type: object
+                    description: Error details

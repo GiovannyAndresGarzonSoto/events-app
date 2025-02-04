@@ -3,7 +3,7 @@ import User, { type IUser } from '../models/User'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
-import { getSeed } from '../utils'
+import { getSeed } from '../../utils'
 
 const nmuser = 'otho.bahringer4@ethereal.email'
 const nmpass = '22S6cSD4fzeV7YNCHq'
